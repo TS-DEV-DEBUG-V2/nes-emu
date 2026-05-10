@@ -91,11 +91,11 @@ kbd{
 
     <select id="rom-select">
         <option value="">Select built-in ROM</option>
-        <option value="./roms/test.nes">Accuracy Test</option>
-        <option value="./roms/rom.nes">Super Mario Bros.</option>
-        <option value="./roms/rom3.nes">Super Mario Bros. 2</option>
-        <option value="./roms/rom2.nes">Super Mario Bros. 3</option>
-        <option value="./roms/paper.nes">Paperboy</option>
+        <option value="roms/test.nes">Accuracy Test</option>
+        <option value="roms/rom.nes">Super Mario Bros.</option>
+        <option value="roms/rom3.nes">Super Mario Bros. 2</option>
+        <option value="roms/rom2.nes">Super Mario Bros. 3</option>
+        <option value="roms/paper.nes">Paperboy</option>
     </select>
 
     <button id="load-selected">Load</button>
@@ -158,20 +158,18 @@ document.getElementById("canvas").addEventListener("drop", function (e) {
     loadROMFile(file, file.name);
 });
 
-// built-in ROM loader
+// built-in ROM loader using XHR
 document.getElementById("load-selected").onclick = function () {
     var path = document.getElementById("rom-select").value;
     if (!path) return;
 
-    console.log("Loading ROM from:", new URL(path, window.location.href).href);
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', path, true);
+    xhr.responseType = 'arraybuffer';
 
-    fetch(path)
-        .then(function (res) {
-            if (!res.ok) throw new Error("HTTP " + res.status);
-            return res.arrayBuffer();
-        })
-        .then(function (buf) {
-            var data = new Uint8Array(buf);
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            var data = new Uint8Array(xhr.response);
 
             var ptr = Module._malloc(data.length);
             Module.HEAPU8.set(data, ptr);
@@ -182,12 +180,18 @@ document.getElementById("load-selected").onclick = function () {
 
             document.getElementById("status").textContent =
                 "Playing: " + path;
-        })
-        .catch(function (err) {
-            console.error(err);
+        } else {
             document.getElementById("status").textContent =
-                "Failed to load: " + path;
-        });
+                "Failed to load: " + path + " (status " + xhr.status + ")";
+        }
+    };
+
+    xhr.onerror = function () {
+        document.getElementById("status").textContent =
+            "Failed to load: " + path + " (network error)";
+    };
+
+    xhr.send();
 };
 </script>
 
