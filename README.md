@@ -6,7 +6,7 @@
 
 A simple Nintendo Entertainment System emulator written in pure C.
 
-![License](https://img.shields.io/badge/license-MIT-blue)
+![License](https://img.shields.io/badge/license-Apache%202.0-blue)
 ![Language](https://img.shields.io/badge/language-C-00599C)
 ![Platform](https://img.shields.io/badge/platform-cross--platform-success)
 ![Code Size](https://img.shields.io/github/languages/code-size/TS-DEV-DEBUG-V2/nes-emu)
