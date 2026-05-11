@@ -45,14 +45,15 @@ A simple Nintendo Entertainment System emulator written in pure C.
 
 ### The Legend of Zelda
 
-<img src="https://raw.githubusercontent.com/TS-DEV-DEBUG-V2/nes-emu/main/assets/screenshot7.jpg" alt="description" style="display:block; margin:0 auto;">
+<img src="https://raw.githubusercontent.com/TS-DEV-DEBUG-V2/nes-emu/main/assets/screenshot7.jpg" alt="description" style="display:block; margin:0 auto; width:300px;">
 
 ### Super Mario Bros.
 
-<img src="https://raw.githubusercontent.com/TS-DEV-DEBUG-V2/nes-emu/main/assets/screenshot8.jpg" alt="description" style="display:block; margin:0 auto;">
+<img src="https://raw.githubusercontent.com/TS-DEV-DEBUG-V2/nes-emu/main/assets/screenshot8.jpg" alt="description" style="display:block; margin:0 auto; width:300px;">
 
 ### 1942
-<img src="https://raw.githubusercontent.com/TS-DEV-DEBUG-V2/nes-emu/main/assets/screenshot9.jpg" alt="description" style="display:block; margin:0 auto;">
+
+<img src="https://raw.githubusercontent.com/TS-DEV-DEBUG-V2/nes-emu/main/assets/screenshot9.jpg" alt="description" style="display:block; margin:0 auto; width:300px;">
 
 `nes-emu` is a lightweight NES emulator focused on simplicity, accuracy, and portability.
 
