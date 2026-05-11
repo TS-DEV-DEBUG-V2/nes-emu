@@ -39,7 +39,6 @@ A simple Nintendo Entertainment System emulator written in pure C.
 
 ---
 # IF YOU ARE LAZY JUST PLAY IT [HERE](https://ts-dev-debug-v2.github.io/nes-emu/wasm/nesemu.html) 
-## Overview
 
 ## Screenshots
 
