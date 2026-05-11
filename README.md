@@ -83,7 +83,8 @@ Main goals:
 - Focused on accuracy and readability
 
 ---
-
+# Development
+![devs](https://repobeats.axiom.co/api/embed/f8dedaca3704de09f81fd24b6d3f8b98144189e9.svg "Repobeats analytics image")
 ## Current Status
 
 | Component | Status |
