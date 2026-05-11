@@ -38,7 +38,7 @@ A simple Nintendo Entertainment System emulator written in pure C.
 </div>
 
 ---
-
+# IF YOU ARE LAZY JUST PLAY IT [HERE](https://ts-dev-debug-v2.github.io/nes-emu/wasm/nesemu.html) 
 ## Overview
 
 `nes-emu` is a lightweight NES emulator focused on simplicity, accuracy, and portability.
