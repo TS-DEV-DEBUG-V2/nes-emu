@@ -209,6 +209,12 @@ typedef struct {
             uint8_t irq_latch; uint8_t irq_counter; bool irq_enable; bool irq_reload;
         } mmc3;
         struct { uint8_t bank; } axrom;
+        struct { uint8_t bank; } color_dreams;
+        struct { uint8_t bank; } bnrom;
+        struct { uint8_t reg; } gxrom;
+        struct { uint8_t bank; } camerica;
+        struct { uint8_t bank; } irem;
+        struct { uint8_t prg; uint8_t chr[4]; } nina;
     } m;
 } Cartridge;
 
@@ -280,5 +286,7 @@ void    nes_reset(NES *nes);
 void    nes_step_frame(NES *nes);
 void    nes_tick(NES *nes);
 void    nes_set_controller(NES *nes, int pad, uint8_t buttons);
+void    nes_save_sram(NES *nes, const char *path);
+void    nes_load_sram(NES *nes, const char *path);
 
 #endif

@@ -6,6 +6,8 @@
 
 static NES nes;
 static bool running = true;
+static char save_path[512];
+static int save_timer = 0;
 
 static uint8_t get_controller_state(const Uint8 *keys) {
     uint8_t state = 0;
@@ -42,6 +44,16 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     free(rom_data);
+
+    /* derive save path from ROM path */
+    int sl = (int)strlen(argv[1]);
+    if (sl > 510) sl = 510;
+    memcpy(save_path, argv[1], sl);
+    save_path[sl] = '\0';
+    char *dot = strrchr(save_path, '.');
+    if (dot && dot > save_path) strcpy(dot, ".sav");
+    else strcat(save_path, ".sav");
+    nes_load_sram(&nes, save_path);
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
         fprintf(stderr, "SDL_Init failed: %s\n", SDL_GetError());
@@ -105,8 +117,15 @@ int main(int argc, char *argv[]) {
         SDL_RenderClear(renderer);
         SDL_RenderCopy(renderer, texture, NULL, NULL);
         SDL_RenderPresent(renderer);
+
+        save_timer++;
+        if (save_timer >= 300) {
+            save_timer = 0;
+            nes_save_sram(&nes, save_path);
+        }
     }
 
+    nes_save_sram(&nes, save_path);
     if (audio_dev > 0) SDL_CloseAudioDevice(audio_dev);
     SDL_DestroyTexture(texture);
     SDL_DestroyRenderer(renderer);

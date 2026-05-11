@@ -113,3 +113,21 @@ void nes_set_controller(NES *n, int pad, uint8_t buttons) {
             n->ctrl_shift[pad] = buttons;
     }
 }
+
+void nes_save_sram(NES *n, const char *path) {
+    if (!n->cart.battery || !n->cart.prg_ram || !n->cart.prg_ram_size) return;
+    FILE *f = fopen(path, "wb");
+    if (f) {
+        fwrite(n->cart.prg_ram, 1, n->cart.prg_ram_size, f);
+        fclose(f);
+    }
+}
+
+void nes_load_sram(NES *n, const char *path) {
+    if (!n->cart.battery || !n->cart.prg_ram || !n->cart.prg_ram_size) return;
+    FILE *f = fopen(path, "rb");
+    if (f) {
+        (void)fread(n->cart.prg_ram, 1, n->cart.prg_ram_size, f);
+        fclose(f);
+    }
+}

@@ -337,6 +337,158 @@ static void axrom_cpu_write(NES *n, uint16_t addr, uint8_t val) {
     }
 }
 
+/* ---- Color Dreams (mapper 11) ---- */
+
+static uint8_t color_dreams_cpu_read(NES *n, uint16_t addr) {
+    Cartridge *c = &n->cart;
+    if (addr >= 0x8000) {
+        int bank = (c->m.color_dreams.bank >> 4) & 7;
+        uint32_t off = bank * 32768 + (addr - 0x8000);
+        return c->prg_rom[off % c->prg_size];
+    }
+    if (addr >= 0x6000) return c->prg_ram[addr - 0x6000];
+    return 0;
+}
+
+static void color_dreams_cpu_write(NES *n, uint16_t addr, uint8_t val) {
+    if (addr >= 0x8000) n->cart.m.color_dreams.bank = val;
+    else if (addr >= 0x6000) n->cart.prg_ram[addr - 0x6000] = val;
+}
+
+static uint8_t color_dreams_ppu_read(NES *n, uint16_t addr) {
+    Cartridge *c = &n->cart;
+    if (c->chr_rom) {
+        int bank = c->m.color_dreams.bank & 0x0F;
+        uint32_t off = bank * 8192 + addr;
+        return c->chr_rom[off % c->chr_size];
+    }
+    return c->chr_ram ? c->chr_ram[addr & 0x1FFF] : 0;
+}
+
+/* ---- BNROM (mapper 34) ---- */
+
+static uint8_t bnrom_cpu_read(NES *n, uint16_t addr) {
+    Cartridge *c = &n->cart;
+    if (addr >= 0x8000) {
+        int bank = c->m.bnrom.bank & 7;
+        uint32_t off = bank * 32768 + (addr - 0x8000);
+        return c->prg_rom[off % c->prg_size];
+    }
+    if (addr >= 0x6000) return c->prg_ram[addr - 0x6000];
+    return 0;
+}
+
+static void bnrom_cpu_write(NES *n, uint16_t addr, uint8_t val) {
+    if (addr >= 0x8000) n->cart.m.bnrom.bank = val;
+    else if (addr >= 0x6000) n->cart.prg_ram[addr - 0x6000] = val;
+}
+
+/* ---- GxROM (mapper 66) ---- */
+
+static uint8_t gxrom_cpu_read(NES *n, uint16_t addr) {
+    Cartridge *c = &n->cart;
+    if (addr >= 0x8000) {
+        int bank = (c->m.gxrom.reg >> 4) & 3;
+        uint32_t off = bank * 32768 + (addr - 0x8000);
+        return c->prg_rom[off % c->prg_size];
+    }
+    if (addr >= 0x6000) return c->prg_ram[addr - 0x6000];
+    return 0;
+}
+
+static void gxrom_cpu_write(NES *n, uint16_t addr, uint8_t val) {
+    if (addr >= 0x8000) n->cart.m.gxrom.reg = val;
+    else if (addr >= 0x6000) n->cart.prg_ram[addr - 0x6000] = val;
+}
+
+static uint8_t gxrom_ppu_read(NES *n, uint16_t addr) {
+    Cartridge *c = &n->cart;
+    if (c->chr_rom) {
+        int bank = c->m.gxrom.reg & 0x0F;
+        uint32_t off = bank * 8192 + addr;
+        return c->chr_rom[off % c->chr_size];
+    }
+    return c->chr_ram ? c->chr_ram[addr & 0x1FFF] : 0;
+}
+
+/* ---- Camerica (mapper 71) ---- */
+
+static uint8_t camerica_cpu_read(NES *n, uint16_t addr) {
+    Cartridge *c = &n->cart;
+    if (addr >= 0xC000)
+        return c->prg_rom[(c->prg_banks - 1) * 16384 + (addr - 0xC000)];
+    if (addr >= 0x8000)
+        return c->prg_rom[(c->m.camerica.bank & 0x0F) * 16384 + (addr - 0x8000)];
+    if (addr >= 0x6000) return c->prg_ram[addr - 0x6000];
+    return 0;
+}
+
+static void camerica_cpu_write(NES *n, uint16_t addr, uint8_t val) {
+    if (addr >= 0x8000) n->cart.m.camerica.bank = val;
+    else if (addr >= 0x6000) n->cart.prg_ram[addr - 0x6000] = val;
+}
+
+/* ---- Irem 74HC161/32 (mapper 78) ---- */
+
+static uint8_t irem_cpu_read(NES *n, uint16_t addr) {
+    Cartridge *c = &n->cart;
+    if (addr >= 0xC000)
+        return c->prg_rom[(c->prg_banks - 1) * 16384 + (addr - 0xC000)];
+    if (addr >= 0x8000)
+        return c->prg_rom[(c->m.irem.bank & 0x0F) * 16384 + (addr - 0x8000)];
+    if (addr >= 0x6000) return c->prg_ram[addr - 0x6000];
+    return 0;
+}
+
+static void irem_cpu_write(NES *n, uint16_t addr, uint8_t val) {
+    if (addr >= 0x8000) n->cart.m.irem.bank = val;
+    else if (addr >= 0x6000) n->cart.prg_ram[addr - 0x6000] = val;
+}
+
+static uint8_t irem_ppu_read(NES *n, uint16_t addr) {
+    Cartridge *c = &n->cart;
+    if (c->chr_rom) {
+        int bank = (c->m.irem.bank >> 4) & 0x0F;
+        uint32_t off = bank * 8192 + addr;
+        return c->chr_rom[off % c->chr_size];
+    }
+    return c->chr_ram ? c->chr_ram[addr & 0x1FFF] : 0;
+}
+
+/* ---- NINA-03/06 (mapper 79) ---- */
+
+static uint8_t nina_cpu_read(NES *n, uint16_t addr) {
+    Cartridge *c = &n->cart;
+    if (addr >= 0x8000) {
+        int bank = c->m.nina.prg & 3;
+        uint32_t off = bank * 32768 + (addr - 0x8000);
+        return c->prg_rom[off % c->prg_size];
+    }
+    if (addr >= 0x6000) return c->prg_ram[addr - 0x6000];
+    return 0;
+}
+
+static void nina_cpu_write(NES *n, uint16_t addr, uint8_t val) {
+    Cartridge *c = &n->cart;
+    if (addr >= 0x4100 && addr < 0x5000) {
+        int reg = (addr >> 8) & 7;
+        if (reg == 0) c->m.nina.prg = val;
+        else if (reg >= 1 && reg <= 4) c->m.nina.chr[reg - 1] = val & 7;
+        return;
+    }
+    if (addr >= 0x6000 && addr < 0x8000) c->prg_ram[addr - 0x6000] = val;
+}
+
+static uint8_t nina_ppu_read(NES *n, uint16_t addr) {
+    Cartridge *c = &n->cart;
+    if (c->chr_rom) {
+        int bank = c->m.nina.chr[(addr & 0x1FFF) / 0x800];
+        uint32_t off = bank * 2048 + (addr & 0x7FF);
+        return c->chr_rom[off % c->chr_size];
+    }
+    return c->chr_ram ? c->chr_ram[addr & 0x1FFF] : 0;
+}
+
 /* ---- dispatch ---- */
 
 uint8_t cart_cpu_read(NES *n, uint16_t addr) {
@@ -347,6 +499,12 @@ uint8_t cart_cpu_read(NES *n, uint16_t addr) {
     case 3:  return cnrom_cpu_read(n, addr);
     case 4:  return mmc3_cpu_read(n, addr);
     case 7:  return axrom_cpu_read(n, addr);
+    case 11: return color_dreams_cpu_read(n, addr);
+    case 34: return bnrom_cpu_read(n, addr);
+    case 66: return gxrom_cpu_read(n, addr);
+    case 71: return camerica_cpu_read(n, addr);
+    case 78: return irem_cpu_read(n, addr);
+    case 79: return nina_cpu_read(n, addr);
     default: return nrom_cpu_read(n, addr);
     }
 }
@@ -359,6 +517,12 @@ void cart_cpu_write(NES *n, uint16_t addr, uint8_t val) {
     case 3:  cnrom_cpu_write(n, addr, val); break;
     case 4:  mmc3_cpu_write(n, addr, val); break;
     case 7:  axrom_cpu_write(n, addr, val); break;
+    case 11: color_dreams_cpu_write(n, addr, val); break;
+    case 34: bnrom_cpu_write(n, addr, val); break;
+    case 66: gxrom_cpu_write(n, addr, val); break;
+    case 71: camerica_cpu_write(n, addr, val); break;
+    case 78: irem_cpu_write(n, addr, val); break;
+    case 79: nina_cpu_write(n, addr, val); break;
     default: nrom_cpu_write(n, addr, val); break;
     }
 }
@@ -368,6 +532,10 @@ uint8_t cart_ppu_read(NES *n, uint16_t addr) {
     case 1:  return mmc1_ppu_read(n, addr);
     case 3:  return cnrom_ppu_read(n, addr);
     case 4:  return mmc3_ppu_read(n, addr);
+    case 11: return color_dreams_ppu_read(n, addr);
+    case 66: return gxrom_ppu_read(n, addr);
+    case 78: return irem_ppu_read(n, addr);
+    case 79: return nina_ppu_read(n, addr);
     default: return nrom_ppu_read(n, addr);
     }
 }

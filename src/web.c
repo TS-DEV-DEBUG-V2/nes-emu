@@ -10,6 +10,8 @@ static SDL_Renderer *renderer;
 static SDL_Texture *texture;
 static SDL_AudioDeviceID audio_dev;
 static bool rom_loaded = false;
+static int save_timer = 0;
+static uint32_t save_key_hash = 0;
 
 #define AUDIO_SAMPLE_RATE 44100
 
@@ -48,6 +50,49 @@ static void ring_push(const float *data, int count) {
         }
     }
     ring_wr = w;
+}
+
+/* ---- SRAM persistence via localStorage ---- */
+
+EM_JS(void, web_save_js, (uint32_t hash, uintptr_t ram, int size), {
+    var key = 'nesemu_save_' + (hash >>> 0).toString(16);
+    var all_zero = true;
+    var arr = [];
+    for (var i = 0; i < size; i++) {
+        var b = HEAPU8[ram + i];
+        if (b) all_zero = false;
+        arr.push(b);
+    }
+    if (!all_zero) localStorage.setItem(key, JSON.stringify(arr));
+});
+
+EM_JS(int, web_load_js, (uint32_t hash, uintptr_t ram, int size), {
+    var key = 'nesemu_save_' + (hash >>> 0).toString(16);
+    var data = localStorage.getItem(key);
+    if (data) {
+        var arr = JSON.parse(data);
+        for (var i = 0; i < arr.length && i < size; i++)
+            HEAPU8[ram + i] = arr[i];
+        return 1;
+    }
+    return 0;
+});
+
+static void web_sram_hash(void) {
+    uint32_t h = 0;
+    for (int i = 0; i < nes.cart.prg_size; i++)
+        h = h * 33 + nes.cart.prg_rom[i];
+    save_key_hash = h;
+}
+
+static void web_save_sram(void) {
+    if (!nes.cart.battery || !nes.cart.prg_ram || !nes.cart.prg_ram_size) return;
+    web_save_js(save_key_hash, (uintptr_t)nes.cart.prg_ram, nes.cart.prg_ram_size);
+}
+
+static void web_load_sram(void) {
+    if (!nes.cart.battery || !nes.cart.prg_ram || !nes.cart.prg_ram_size) return;
+    web_load_js(save_key_hash, (uintptr_t)nes.cart.prg_ram, nes.cart.prg_ram_size);
 }
 
 /* ---- input ---- */
@@ -99,6 +144,12 @@ static void main_loop(void) {
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, texture, NULL, NULL);
     SDL_RenderPresent(renderer);
+
+    save_timer++;
+    if (save_timer >= 300) {
+        save_timer = 0;
+        web_save_sram();
+    }
 }
 
 /* ---- ROM loading ---- */
@@ -118,6 +169,9 @@ static void on_rom_loaded(void *arg, void *data, int size) {
     if (nes_load_rom(&nes, (const uint8_t *)data, size)) {
         rom_loaded = true;
         last_time = 0;
+        save_timer = 0;
+        web_sram_hash();
+        web_load_sram();
         start_audio();
     } else {
         fprintf(stderr, "Failed to load ROM\n");
@@ -135,10 +189,21 @@ void load_rom_from_url(const char *url) {
 }
 
 EMSCRIPTEN_KEEPALIVE
+void reset_nes(void) {
+    nes_reset(&nes);
+    rom_loaded = true;
+    last_time = 0;
+    save_timer = 0;
+}
+
+EMSCRIPTEN_KEEPALIVE
 void load_rom_from_data(const uint8_t *data, int size) {
     if (nes_load_rom(&nes, data, size)) {
         rom_loaded = true;
         last_time = 0;
+        save_timer = 0;
+        web_sram_hash();
+        web_load_sram();
         start_audio();
     }
 }
@@ -152,7 +217,7 @@ int main(int argc, char *argv[]) {
 
     window = SDL_CreateWindow("NES Emulator",
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        256 * 3, 240 * 3, SDL_WINDOW_SHOWN);
+        256 * 3, 240 * 3, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     SDL_RenderSetLogicalSize(renderer, 256, 240);
     texture = SDL_CreateTexture(renderer,
