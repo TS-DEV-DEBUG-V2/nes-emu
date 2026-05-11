@@ -41,6 +41,19 @@ A simple Nintendo Entertainment System emulator written in pure C.
 # IF YOU ARE LAZY JUST PLAY IT [HERE](https://ts-dev-debug-v2.github.io/nes-emu/wasm/nesemu.html) 
 ## Overview
 
+## Screenshots
+
+### The Legend of Zelda
+
+<img src="https://raw.githubusercontent.com/TS-DEV-DEBUG-V2/nes-emu/main/assets/screenshot7.jpg" alt="description" style="display:block; margin:0 auto;">
+
+### Super Mario Bros.
+
+<img src="https://raw.githubusercontent.com/TS-DEV-DEBUG-V2/nes-emu/main/assets/screenshot8.jpg" alt="description" style="display:block; margin:0 auto;">
+
+### 1942
+<img src="https://raw.githubusercontent.com/TS-DEV-DEBUG-V2/nes-emu/main/assets/screenshot9.jpg" alt="description" style="display:block; margin:0 auto;">
+
 `nes-emu` is a lightweight NES emulator focused on simplicity, accuracy, and portability.
 
 The project is written entirely in pure C with no unnecessary abstractions or bloated dependencies.
